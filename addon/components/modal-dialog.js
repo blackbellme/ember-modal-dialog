@@ -4,7 +4,6 @@ import layout from '../templates/components/modal-dialog';
 const { dasherize } = Ember.String;
 const { $, computed, guidFor, inject } = Ember;
 const { oneWay } = computed;
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 const computedJoin = function(prop) {
   return computed(prop, function() {
     return this.get(prop).join(' ');
@@ -38,6 +37,10 @@ export default Ember.Component.extend({
     return `ember-modal-dialog-target-attachment-${dasherize(targetAttachment)}`;
   }),
 
+  isIOS: computed(function() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent)
+  }),
+
   target: 'body', // element, css selector, or view instance
   targetAttachment: 'middle center',
 
@@ -46,7 +49,7 @@ export default Ember.Component.extend({
   renderInPlace: false,
 
   makeOverlayClickableOnIOS: Ember.on('didInsertElement', function() {
-    if (isIOS) {
+    if (this.get('isIOS')) {
       Ember.$('div[data-ember-modal-dialog-overlay]').css('cursor', 'pointer');
     }
   }),
@@ -66,7 +69,7 @@ export default Ember.Component.extend({
     // setTimeout needed or else the click handler will catch the click that spawned this modal dialog
     setTimeout(registerClick);
 
-    if (isIOS) {
+    if (this.get('isIOS')) {
       const registerTouch = () => $(document).on(`touchend.ember-modal-dialog-${guidFor(this)}`, handleClick);
       setTimeout(registerTouch);
     }
@@ -74,7 +77,7 @@ export default Ember.Component.extend({
   },
   willDestroyElement() {
     $(document).off(`click.ember-modal-dialog-${guidFor(this)}`);
-    if (isIOS) {
+    if (this.get('isIOS')) {
       $(document).off(`touchend.ember-modal-dialog-${guidFor(this)}`);
     }
     this._super(...arguments);

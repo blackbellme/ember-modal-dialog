@@ -4,7 +4,6 @@ import layout from '../templates/components/tether-dialog';
 
 const { dasherize } = Ember.String;
 const { computed, get } = Ember;
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 export default ModalDialog.extend({
   layout,
@@ -12,6 +11,10 @@ export default ModalDialog.extend({
   targetAttachmentClass: computed('targetAttachment', function() {
     let targetAttachment = this.get('targetAttachment') || '';
     return `ember-modal-dialog-target-attachment-${dasherize(targetAttachment)}`;
+  }),
+
+  isIOS: computed(function() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent)
   }),
 
   targetAttachment: 'middle center',
@@ -25,7 +28,7 @@ export default ModalDialog.extend({
   // targetModifier - passed in
 
   makeOverlayClickableOnIOS: Ember.on('didInsertElement', function() {
-    if (isIOS && get(this, 'hasOverlay')) {
+    if (this.get('isIOS') && get(this, 'hasOverlay')) {
       Ember.$('div[data-ember-modal-dialog-overlay]').css('cursor', 'pointer');
     }
   })
